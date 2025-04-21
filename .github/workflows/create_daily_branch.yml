@@ -1,4 +1,7 @@
-name: Create Branch by Date
+name: Daily Create Branch
+
+permissions:
+  contents: write
 
 on:
   schedule:
