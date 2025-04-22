@@ -6,7 +6,7 @@ permissions:
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '5 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -15,7 +15,9 @@ jobs:
     steps:
       - name: Set current date
         id: date
-        run: echo "date=$(TZ=Asia/Tokyo date +'%y%m%d')" >> "$GITHUB_OUTPUT"
+        env:
+          TZ: 'Asia/Tokyo' # タイムゾーン指定
+        run: echo "date=$(date +'%y%m%d')" >> "$GITHUB_OUTPUT"
 
       - name: Checkout main branch
         uses: actions/checkout@v3
