@@ -2,6 +2,7 @@ name: Daily Create Branch
 
 permissions:
   contents: write
+  pull-requests: write
 
 on:
   schedule:
@@ -21,12 +22,34 @@ jobs:
         with:
           ref: main
 
-      - name: Create and push new branch
+      - name: Check if the branch already exists
+        id: branch_check
         run: |
+          BRANCH_NAME="develop_${{ steps.date.outputs.date }}"
+          git fetch origin
+          if git ls-remote --heads origin "refs/heads/$BRANCH_NAME"; then
+            echo "exists=true" >> "$GITHUB_ENV"
+          else
+            echo "exists=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Create new branch and push if not exists
+        if: env.exists == 'false'
+        run: |
+          NEW_BRANCH="develop_${{ steps.date.outputs.date }}"
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
-
-          NEW_BRANCH="develop_${{ steps.date.outputs.date }}"
-          
           git checkout -b $NEW_BRANCH
           git push origin $NEW_BRANCH
+          echo "Branch $NEW_BRANCH created and pushed."
+
+      - name: Create Pull Request if branch was created
+        if: env.exists == 'false'
+        run: |
+          BRANCH_NAME="develop_${{ steps.date.outputs.date }}"
+          PR_TITLE="Create $BRANCH_NAME branch"
+          PR_BODY="This PR is automatically created to merge $BRANCH_NAME into main."
+          PR_URL=$(curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{"title": "'"$PR_TITLE"'", "head": "'"$BRANCH_NAME"'", "base": "main", "body": "'"$PR_BODY"'"}' \
+            https://api.github.com/repos/${{ github.repository }}/pulls | jq -r .url)
