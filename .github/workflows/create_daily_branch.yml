@@ -30,8 +30,10 @@ jobs:
           BRANCH_NAME="develop_${{ steps.date.outputs.date }}"
           git fetch origin
           if git ls-remote --heads origin "refs/heads/$BRANCH_NAME"; then
+            echo "Branch $BRANCH_NAME already exists, skipping creation."
             echo "exists=true" >> "$GITHUB_ENV"
           else
+            echo "Branch $BRANCH_NAME does not exist, proceeding with creation."
             echo "exists=false" >> "$GITHUB_ENV"
           fi
 
