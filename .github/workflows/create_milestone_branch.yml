@@ -1,4 +1,4 @@
-name: Create Daily Branch
+name: Create Milestone Branch
 
 permissions:
   contents: write
@@ -19,7 +19,7 @@ jobs:
           TZ: 'Asia/Tokyo' # タイムゾーン指定
         run: echo "date=$(date +'%y%m%d')" >> "$GITHUB_OUTPUT"
 
-      - name: Checkout main branch
+      - name: Checkout develop branch
         uses: actions/checkout@v4
         with:
           ref: develop
@@ -27,7 +27,7 @@ jobs:
       - name: Check if the branch already exists
         id: branch_check
         run: |
-          BRANCH_NAME="develop_${{ steps.date.outputs.date }}"
+          BRANCH_NAME="milestone_${{ steps.date.outputs.date }}"
           git fetch origin
           EXISTING_BRANCH=$(git ls-remote --heads origin "refs/heads/$BRANCH_NAME")
           if [ -z "$EXISTING_BRANCH" ]; then
