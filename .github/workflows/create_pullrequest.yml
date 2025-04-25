@@ -1,0 +1,35 @@
+name: Create PR to Develop on Merge
+
+on:
+  pull_request:
+    branches:
+      - 'milestone_*'
+    types:
+      - closed
+
+jobs:
+  create-pr:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'milestone_')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Set up Git config
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Create or update PR to develop
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: develop
+          branch: ${{ github.event.pull_request.head.ref }}
+          title: "Merge ${{ github.event.pull_request.head.ref }} into develop"
+          body: |
+            This PR is created/updated automatically because PR #${{ github.event.pull_request.number }}
+            (from `${{ github.event.pull_request.head.ref }}` to `develop`) was merged.
+          delete-branch: true
