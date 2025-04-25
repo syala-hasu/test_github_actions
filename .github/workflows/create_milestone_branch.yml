@@ -41,7 +41,7 @@ jobs:
       - name: Create new branch and push if not exists
         if: env.exists == 'false'
         run: |
-          NEW_BRANCH="develop_${{ steps.date.outputs.date }}"
+          NEW_BRANCH="milestone_${{ steps.date.outputs.date }}"
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git checkout -b $NEW_BRANCH
